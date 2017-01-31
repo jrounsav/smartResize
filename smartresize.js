@@ -1,5 +1,5 @@
 // unfinished
-(function smartResize(obj) { 
+(function smartResize(obj) {
   var smartResize = {
     /**
      *
@@ -23,7 +23,6 @@
         original.clone().appendTo(this.domEl);
       }
     },
-    //
     setLargest: function () {
 
     },
