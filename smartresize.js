@@ -1,3 +1,7 @@
+/**
+ * EX Implementation
+ * window.resizing = window.smartResize.construct(jQuery('#ASUNavMenu'),'.tb-megamenu-item.level-1.mega>a', jQuery('.block-tb-megamenu'),[{style:'font-size: 15px; padding: 12px 12px 15px'},{style:'font-size:16px; padding: 19px 19px 21px;'},{style: 'font-size:16px; padding: 19px 25px 21px;'}]);
+ */
 (function smartResize($) {
   var smartResize = {
     /**
@@ -23,7 +27,10 @@
       testable.getMaxWidth(bounds);
       testable.calculateSizes();
       testable.setBestStyle();
+      testable.buildStyleMarkup();
+      testable.addMarkupToPage();
       testable.watchScreen();
+      // testable.handlePreselected();
       return testable;
     },
     /**
@@ -33,8 +40,8 @@
      */
     generate: function generate(original) {
       if (!this.domEl) {
-        // this.domEl = $('<div id="' + this.id + '" style="">').appendTo(document.body);
-        this.domEl = $('<div id="' + this.id + '" style="height: 0; overflow: hidden;">').hide().appendTo(document.body);
+        this.domEl = $('<div id="' + this.id + '" style="position: absolute; left: -100000px;" aria-hidden="true">').appendTo(document.body);
+        // this.domEl = $('<div id="' + this.id + '" style="height: 0; overflow: hidden;">').hide().appendTo(document.body);
         original.clone().appendTo(this.domEl);
       }
     },
@@ -71,7 +78,6 @@
      */
     calculateSizes: function(){
       var stylemap = {};
-      this.domEl.show();
       for(var i=0; i<this.approvedStyle.length; i++){
         var width = 0;
         for(var j=0; j<this.resizeable.length; j++){
@@ -87,7 +93,6 @@
           this.resizeable[k].setAttribute('style', stylemap[k].original);
         }
       }
-      this.domEl.hide();
       this.checkValidSizes();
     },
     /**
@@ -112,7 +117,6 @@
      */
     setBestStyle: function(){
       var biggestAcceptable = this.biggestAcceptable;
-
       if(this.styledSize[biggestAcceptable].width < this.maxWidth){
         for(var style in this.styledSize){
           if(this.styledSize[style].width > this.styledSize[biggestAcceptable].width && this.styledSize[style].width < this.maxWidth){
@@ -130,6 +134,7 @@
         this.biggestAcceptable = biggestAcceptable;
         this.buildStyleMarkup();
         this.addMarkupToPage();
+        this.setLocalStorage();
       }
     },
     /**
@@ -157,6 +162,14 @@
         $('head').append(this.cssMarkup);
       }
     },
+    setLocalStorage: function(){
+      if (typeof (Storage) !== "undefined") {
+        localStorage.setItem('smartResize', this.cssMarkup.innerHTML);
+      }
+    },
+    handlePreselected: function(){
+      $('#smartResize-preselected').remove();
+    },
     /**
      * Adds an event lister for window resize.
      * Re-evaluates the object's maxWidth item, compares the styledSize to maxWidth, adds the new styling to the page.
@@ -183,7 +196,7 @@
     biggestAcceptable: 0,
     cssMarkup: null, // The markup to be posted to the page
     count: 0, // The number of elements being "intelligently" resized
-    validSizes: false // The sizes are not all 0. May happen with display: none;
+    validSizes: false, // The sizes are not all 0. May happen with display: none;
   };
   window.smartResize = smartResize;
 })(window.jQuery);
