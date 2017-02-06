@@ -26,11 +26,6 @@
       testable.preventTransitions();
       testable.getMaxWidth(bounds);
       testable.calculateSizes();
-      testable.setBestStyle();
-      testable.buildStyleMarkup();
-      testable.addMarkupToPage();
-      testable.watchScreen();
-      // testable.handlePreselected();
       return testable;
     },
     /**
@@ -78,22 +73,44 @@
      */
     calculateSizes: function(){
       var stylemap = {};
-      for(var i=0; i<this.approvedStyle.length; i++){
-        var width = 0;
-        for(var j=0; j<this.resizeable.length; j++){
-          var original = this.resizeable[j].getAttribute('style');
-          stylemap[j] = {original: original};
-          var newStyle = original ? original + ' ' + this.approvedStyle[i].style : this.approvedStyle[i].style ;
-          this.resizeable[j].setAttribute('style', newStyle);
-          width = width + this.resizeable[j].offsetWidth;
-        }
-        this.styledSize[i] = {width: width};
+      var i = 0;
+      var k = 0;
+      loopApprovedStyles(this);
 
-        for(var k=0; k<this.resizeable.length; k++){
-          this.resizeable[k].setAttribute('style', stylemap[k].original);
-        }
+      function loopApprovedStyles(obj){
+          if(k < obj.approvedStyle.length){
+            loopResizeable(obj);
+          } else {
+            obj.checkValidSizes();
+            obj.setBestStyle();
+            obj.watchScreen();
+          }
       }
-      this.checkValidSizes();
+      function loopResizeable(obj) {
+        setTimeout(function(){
+          var original = obj.resizeable[i].getAttribute('style');
+          stylemap[k] = {original: original};
+          var newStyle = original ? original + ' ' + obj.approvedStyle[k].style : obj.approvedStyle[k].style;
+          obj.resizeable[i].setAttribute('style', newStyle);
+          i++;
+          if(i < obj.resizeable.length){
+            loopResizeable(obj);
+          } else {
+            getResizeableWidth(obj);
+          }
+        }, 40)
+      }
+      function getResizeableWidth(obj){
+        var width = 0;
+        for(var a=0; a<obj.resizeable.length; a++){
+          width = width + obj.resizeable[a].offsetWidth;
+          obj.resizeable[a].setAttribute('style', stylemap[k].original);
+        }
+        obj.styledSize[k] = {width: width};
+        i=0;
+        k++;
+        loopApprovedStyles(obj);
+      }
     },
     /**
      * Verifies that any of the sizes have a width greater than 0.
