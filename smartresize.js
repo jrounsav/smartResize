@@ -147,7 +147,8 @@
           }
         }
       }
-      if(this.biggestAcceptable !== biggestAcceptable){
+      if (this.biggestAcceptable !== biggestAcceptable || this.firstBuild) {
+        this.firstBuild = false;
         this.biggestAcceptable = biggestAcceptable;
         this.buildStyleMarkup();
         this.addMarkupToPage();
@@ -214,6 +215,7 @@
     cssMarkup: null, // The markup to be posted to the page
     count: 0, // The number of elements being "intelligently" resized
     validSizes: false, // The sizes are not all 0. May happen with display: none;
+    firstBuild: true
   };
   window.smartResize = smartResize;
 })(window.jQuery);
